@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MoXo</string>
+    <string name="title_blog">Blog</string>
+    <string name="title_activity">Activity</string>
+    <string name="title_journey">Journey</string>
+    <string name="title_user">User</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_terms">TC</string>
+    <string name="version">1.0.1</string>
+</resources>
