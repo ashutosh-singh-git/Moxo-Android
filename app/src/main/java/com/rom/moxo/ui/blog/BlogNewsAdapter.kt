@@ -9,16 +9,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.rom.moxo.R
 
-class BlogListAdapter(private val listener: NewsItemClicked): RecyclerView.Adapter<NewsViewHolder>() {
+class BlogNewsAdapter(private var items: ArrayList<Blog>) :
+    RecyclerView.Adapter<NewsViewHolder>() {
 
-    private val items: ArrayList<Blog> = ArrayList()
+//    private var items: ArrayList<Blog> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.blog_item, parent, false)
         val viewHolder = NewsViewHolder(view)
-        view.setOnClickListener{
-            listener.onItemClicked(items[viewHolder.adapterPosition])
-        }
+//        view.setOnClickListener {
+//            listener.onItemClicked(items[viewHolder.adapterPosition])
+//        }
         return viewHolder
     }
 

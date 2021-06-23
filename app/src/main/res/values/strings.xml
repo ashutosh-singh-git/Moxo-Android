@@ -7,4 +7,13 @@
     <string name="title_settings">Settings</string>
     <string name="title_terms">TC</string>
     <string name="version">1.0.1</string>
+    <string name="random_text">Experiment with adding an ImageView above the TextView inside the ScrollView. When you run the app, this image, unlike the star, will scroll out of view as the text scrolls up.
+
+Hint: You will need to wrap the two scrollable views into a LinearLayout inside the ScrollView. ScrollView > LinerLayout > ImageView + TextView
+
+Below is a skeleton code version for this challenge.
+
+The important thing to remember is that since ScrollView can only have one child, you have to wrap that ImageView and the TextView into a LinearLayout.
+
+There is no solution code provided for this challenge, but the skeleton code below gives you the expected view hierarchy to use.</string>
 </resources>
