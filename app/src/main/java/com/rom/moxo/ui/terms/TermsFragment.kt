@@ -21,7 +21,7 @@ class TermsFragment : Fragment() {
     ): View? {
         termsViewModel =
             ViewModelProviders.of(this).get(TermsViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_terms, container, false)
+        val root = inflater.inflate(R.layout.terms_fragment, container, false)
         val textView: TextView = root.findViewById(R.id.text_terms)
         termsViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it

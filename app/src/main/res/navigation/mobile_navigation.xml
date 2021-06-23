@@ -9,34 +9,34 @@
         android:id="@+id/navigation_blog"
         android:name="com.rom.moxo.ui.blog.BlogFragment"
         android:label="@string/title_blog"
-        tools:layout="@layout/fragment_blog" />
+        tools:layout="@layout/blog_fragment" />
 
     <fragment
         android:id="@+id/navigation_activity"
         android:name="com.rom.moxo.ui.activity.ActivityFragment"
         android:label="@string/title_activity"
-        tools:layout="@layout/fragment_activity" />
+        tools:layout="@layout/activity_fragment" />
     <fragment
         android:id="@+id/navigation_journey"
         android:name="com.rom.moxo.ui.journey.JourneyFragment"
         android:label="@string/title_journey"
-        tools:layout="@layout/fragment_journey" />
+        tools:layout="@layout/journey_fragment" />
 
     <fragment
         android:id="@+id/navigation_user"
         android:name="com.rom.moxo.ui.user.UserFragment"
         android:label="@string/title_user"
-        tools:layout="@layout/fragment_user" />
+        tools:layout="@layout/user_fragment" />
 
     <fragment
         android:id="@+id/navigation_settings"
         android:name="com.rom.moxo.ui.settings.SettingsFragment"
         android:label="@string/title_settings"
-        tools:layout="@layout/fragment_settings" />
+        tools:layout="@layout/settings_fragment" />
 
     <fragment
         android:id="@+id/navigation_terms"
         android:name="com.rom.moxo.ui.terms.TermsFragment"
         android:label="@string/title_terms"
-        tools:layout="@layout/fragment_terms" />
+        tools:layout="@layout/terms_fragment" />
 </navigation>

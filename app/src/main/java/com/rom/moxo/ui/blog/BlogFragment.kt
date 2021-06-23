@@ -1,31 +1,50 @@
 package com.rom.moxo.ui.blog
 
+import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.rom.moxo.R
+import com.rom.moxo.data.network.ApiInterface
+import com.rom.moxo.data.network.BlogNetworkDataSourceImpl
+import com.rom.moxo.data.network.ConnectivityInterceptorImpl
+import kotlinx.android.synthetic.main.blog_fragment.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class BlogFragment : Fragment() {
 
-    private lateinit var blogViewModel: BlogViewModel
+    companion object {
+        fun newInstance() = BlogFragment()
+    }
+
+    private lateinit var viewModel: BlogViewModel
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        blogViewModel =
-            ViewModelProviders.of(this).get(BlogViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_blog, container, false)
-        val textView: TextView = root.findViewById(R.id.text_blog)
-        blogViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
-        return root
+        return inflater.inflate(R.layout.blog_fragment, container, false)
     }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        viewModel = ViewModelProviders.of(this).get(BlogViewModel::class.java)
+
+        val apiResponse =  ApiInterface(ConnectivityInterceptorImpl(this.context!!))
+        val blogNetworkDataSource = BlogNetworkDataSourceImpl(apiResponse)
+
+        blogNetworkDataSource.downloadedFeed.observe(this, Observer {
+            textView.text = it.toString()
+        })
+
+        GlobalScope.launch(Dispatchers.Main) {
+            blogNetworkDataSource.fetchFeed("0", "20")
+        }
+    }
+
 }
