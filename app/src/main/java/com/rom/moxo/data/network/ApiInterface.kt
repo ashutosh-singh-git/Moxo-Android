@@ -25,8 +25,12 @@ interface ApiInterface {
         operator fun invoke(
             connectivityInterceptor: ConnectivityInterceptor
         ): ApiInterface {
+            val okHttpClient = OkHttpClient.Builder()
+                .addInterceptor(connectivityInterceptor)
+                .build()
 
             return Retrofit.Builder()
+                .client(okHttpClient)
                 .baseUrl(BASE_URL)
                 .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .addConverterFactory(GsonConverterFactory.create())

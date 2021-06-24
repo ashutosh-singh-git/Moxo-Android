@@ -8,7 +8,7 @@ import com.rom.moxo.data.db.entity.Content
 @Entity(tableName = "blog_feed")
 data class BlogContentResponse(
     @Embedded(prefix = "content_")
-    val content: Content,
+    val content: ArrayList<Content>,
     val number: Int,
     val numberOfElements: Int,
     val size: Int
