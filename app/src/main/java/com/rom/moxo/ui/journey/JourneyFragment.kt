@@ -21,7 +21,7 @@ class JourneyFragment : Fragment() {
     ): View? {
         journeyViewModel =
             ViewModelProviders.of(this).get(JourneyViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_journey, container, false)
+        val root = inflater.inflate(R.layout.journey_fragment, container, false)
         val textView: TextView = root.findViewById(R.id.text_journey)
         journeyViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it

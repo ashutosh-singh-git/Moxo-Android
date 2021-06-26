@@ -1,13 +1,14 @@
 package com.rom.moxo.ui.blog
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.rom.moxo.data.repository.BlogRepository
+import com.rom.moxo.internal.lazydeferred
 
-class BlogViewModel : ViewModel() {
+class BlogViewModel(
+    private val blogRepository: BlogRepository
+) : ViewModel() {
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is blog Fragment"
+    val blog by lazydeferred {
+         blogRepository.getBlogFeed()
     }
-    val text: LiveData<String> = _text
 }

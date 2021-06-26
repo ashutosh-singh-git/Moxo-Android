@@ -1,59 +1,61 @@
 package com.rom.moxo.ui.blog
 
+import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.rom.moxo.R
+import com.rom.moxo.ui.base.ScopedFragment
+import kotlinx.android.synthetic.main.blog_fragment.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.kodein.di.KodeinAware
+import org.kodein.di.android.x.closestKodein
+import org.kodein.di.generic.instance
 
-class BlogFragment : Fragment() {
 
-    private lateinit var blogViewModel: BlogViewModel
+class BlogFragment : ScopedFragment(), KodeinAware {
 
-//    private var layoutManager: RecyclerView.LayoutManager? = null
-//    private var adapter: RecyclerView.Adapter<NewsViewHolder>? = null
-    var recyclerView: RecyclerView? = null
+    override val kodein by closestKodein()
+    private val viewModelFactory: BlogViewModelFactory by instance()
+
+    companion object {
+        fun newInstance() = BlogFragment()
+    }
+
+    private lateinit var viewModel: BlogViewModel
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        blogViewModel =
-            ViewModelProviders.of(this).get(BlogViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_blog, container, false)
-        val textView: TextView = root.findViewById(R.id.text_blog)
-        recyclerView = root.findViewById(R.id.recycler_view_blog)
-        blogViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
+        return inflater.inflate(R.layout.blog_fragment, container, false)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        viewModel = ViewModelProviders.of(this, viewModelFactory)
+            .get(BlogViewModel::class.java)
+
+//        val apiResponse =  ApiInterface(ConnectivityInterceptorImpl(this.context!!))
+//        val blogNetworkDataSource = BlogNetworkDataSourceImpl(apiResponse)
+//
+//        blogNetworkDataSource.downloadedFeed.observe(this, Observer {
+//            textView.text = it.toString()
+//        })
+//
+//        GlobalScope.launch(Dispatchers.Main) {
+//            blogNetworkDataSource.fetchFeed("0", "20")
+//        }
+    }
+    private fun bindUI() = launch{
+        val blogContent = viewModel.blog.await()
+        blogContent.observe(this@BlogFragment, Observer {
+            if (it == null) return@Observer
+            textView.text = it.toString()
         })
-
-        return root
-    }
-
-    override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(itemView, savedInstanceState)
-        recyclerView?.adapter = BlogNewsAdapter(generateBlogList());
-        recyclerView?.layoutManager = LinearLayoutManager(activity)
-    }
-
-    fun generateBlogList(): ArrayList<Blog> {
-        val list : ArrayList<Blog> = ArrayList()
-
-        list.add(Blog("Ashu","LWS","https://stackoverflow.com/questions/36896801/how-to-initialize-listt-in-kotlin", "https://image.shutterstock.com/image-vector/default-avatar-profile-icon-social-260nw-1677509740.jpg"))
-        list.add(Blog("Toshi","ASP","https://github.com/antoniolg/kotlin-android-example/blob/master/mobile/src/main/kotlin/jp/satorufujiwara/kotlin/ui/main/MainFragment.kt", "http://s3.amazonaws.com/37assets/svn/765-default-avatar.png"))
-        list.add(Blog("Vikas","SJA","https://www.vogella.com/tutorials/Retrofit/article.html", "https://image.shutterstock.com/image-vector/default-avatar-profile-icon-social-260nw-1677509740.jpg"))
-        list.add(Blog("Asssu","PAL","https://developer.android.com/studio/run", "https://image.shutterstock.com/image-vector/default-avatar-profile-icon-social-260nw-1677509740.jpg"))
-        list.add(Blog("Suuany","DJF","https://github.com/topics/fragments?l=kotlin", "https://image.shutterstock.com/image-vector/default-avatar-profile-icon-social-260nw-1677509740.jpg"))
-        list.add(Blog("Vllooa","APK","https://github.com/topics/fragments?l=java", "https://image.shutterstock.com/image-vector/default-avatar-profile-icon-social-260nw-1677509740.jpg"))
-
-        return list;
     }
 
 }
