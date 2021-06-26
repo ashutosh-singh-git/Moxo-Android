@@ -4,10 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.rom.moxo.data.db.entity.Content
 import com.rom.moxo.data.network.response.BlogContentResponse
 
 @Database(
-    entities = [BlogContentResponse::class],
+    entities = [Content::class],
     version = 1
 )
 abstract class BlogDatabase : RoomDatabase() {

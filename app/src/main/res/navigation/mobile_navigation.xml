@@ -16,6 +16,7 @@
         android:name="com.rom.moxo.ui.activity.ActivityFragment"
         android:label="@string/title_activity"
         tools:layout="@layout/activity_fragment" />
+
     <fragment
         android:id="@+id/navigation_journey"
         android:name="com.rom.moxo.ui.journey.JourneyFragment"
