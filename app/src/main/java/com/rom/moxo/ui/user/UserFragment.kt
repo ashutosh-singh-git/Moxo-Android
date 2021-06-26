@@ -21,7 +21,7 @@ class UserFragment : Fragment() {
     ): View? {
         userViewModel =
             ViewModelProviders.of(this).get(UserViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_user, container, false)
+        val root = inflater.inflate(R.layout.user_fragment, container, false)
         val textView: TextView = root.findViewById(R.id.text_user)
         userViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
