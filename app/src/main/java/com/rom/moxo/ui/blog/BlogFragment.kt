@@ -1,61 +1,130 @@
 package com.rom.moxo.ui.blog
 
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
-import com.rom.moxo.R
-import com.rom.moxo.ui.base.ScopedFragment
-import kotlinx.android.synthetic.main.blog_fragment.*
-import kotlinx.coroutines.GlobalScope
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.LoadState
+import com.google.android.material.snackbar.Snackbar
+import com.rom.moxo.adapters.BlogAdapter
+import com.rom.moxo.adapters.BlogsLoadingStateAdapter
+import com.rom.moxo.databinding.BlogFragmentBinding
+import com.rom.moxo.utils.RecyclerViewItemDecoration
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.kodein.di.KodeinAware
-import org.kodein.di.android.x.closestKodein
-import org.kodein.di.generic.instance
 
+class BlogFragment : Fragment() {
 
-class BlogFragment : ScopedFragment(), KodeinAware {
-
-    override val kodein by closestKodein()
-    private val viewModelFactory: BlogViewModelFactory by instance()
 
     companion object {
         fun newInstance() = BlogFragment()
     }
 
-    private lateinit var viewModel: BlogViewModel
+    private val viewModel: BlogViewModel by activityViewModels()
+
+    private var _binding: BlogFragmentBinding? = null
+    private val binding get() = _binding!!
+
+    private val adapter = BlogAdapter{ name: String -> snackBarClickedPlayer(name) }
+
+    private var searchJob: Job? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.blog_fragment, container, false)
+    ): View {
+        _binding = BlogFragmentBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, viewModelFactory)
-            .get(BlogViewModel::class.java)
-
-//        val apiResponse =  ApiInterface(ConnectivityInterceptorImpl(this.context!!))
-//        val blogNetworkDataSource = BlogNetworkDataSourceImpl(apiResponse)
-//
-//        blogNetworkDataSource.downloadedFeed.observe(this, Observer {
-//            textView.text = it.toString()
-//        })
-//
-//        GlobalScope.launch(Dispatchers.Main) {
-//            blogNetworkDataSource.fetchFeed("0", "20")
-//        }
-    }
-    private fun bindUI() = launch{
-        val blogContent = viewModel.blog.await()
-        blogContent.observe(this@BlogFragment, Observer {
-            if (it == null) return@Observer
-            textView.text = it.toString()
-        })
+    @ExperimentalPagingApi
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        startSearchJob()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+
+    @ExperimentalPagingApi
+    private fun startSearchJob() {
+
+        searchJob?.cancel()
+        searchJob = lifecycleScope.launch {
+            setUpAdapter()
+            binding.swiper.setOnRefreshListener {
+                adapter.refresh()
+            }
+            viewModel.searchBlogs()
+                .collectLatest {
+                    adapter.submitData(it)
+                }
+        }
+    }
+
+    private fun snackBarClickedPlayer(name: String) {
+        val parentLayout = view?.findViewById<View>(android.R.id.content)
+        if (parentLayout != null) {
+            Snackbar.make(parentLayout, name, Snackbar.LENGTH_LONG)
+                .show()
+        }
+    }
+
+    private fun setUpAdapter() {
+        binding.recyclerView.apply {
+            setHasFixedSize(true)
+            addItemDecoration(RecyclerViewItemDecoration())
+        }
+        binding.recyclerView.adapter = adapter.withLoadStateFooter(
+            footer = BlogsLoadingStateAdapter { retry() }
+        )
+
+        adapter.addLoadStateListener { loadState ->
+
+            if (loadState.mediator?.refresh is LoadState.Loading) {
+
+                if (adapter.snapshot().isEmpty()) {
+                    binding.progress.isVisible = true
+                }
+                binding.error.isVisible = false
+
+            } else {
+                binding.progress.isVisible = false
+                binding.swiper.isRefreshing = false
+
+                val error = when {
+                    loadState.mediator?.prepend is LoadState.Error -> loadState.mediator?.prepend as LoadState.Error
+                    loadState.mediator?.append is LoadState.Error -> loadState.mediator?.append as LoadState.Error
+                    loadState.mediator?.refresh is LoadState.Error -> loadState.mediator?.refresh as LoadState.Error
+
+                    else -> null
+                }
+                error?.let {
+                    if (adapter.snapshot().isEmpty()) {
+                        binding.error.isVisible = true
+                        binding.error.text = it.error.localizedMessage
+                    }
+
+                }
+
+            }
+        }
+
+    }
+
+    private fun retry() {
+        adapter.retry()
+    }
 }
