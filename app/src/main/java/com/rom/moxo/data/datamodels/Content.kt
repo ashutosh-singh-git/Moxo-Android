@@ -20,7 +20,7 @@ data class Content(
     @SerializedName("link")
     val link: String,
     @SerializedName("publishedAt")
-    val publishedAt: String,
+    val publishedAt: Long,
     @SerializedName("publisher")
     val publisher: String,
     @SerializedName("title")

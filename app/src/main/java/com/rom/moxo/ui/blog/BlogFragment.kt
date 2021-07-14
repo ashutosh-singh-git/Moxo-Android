@@ -1,5 +1,6 @@
 package com.rom.moxo.ui.blog
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,20 +8,23 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadState
-import com.google.android.material.snackbar.Snackbar
+import com.rom.moxo.activity.DetailActivity
+import com.rom.moxo.activity.MainActivity
 import com.rom.moxo.adapters.BlogAdapter
 import com.rom.moxo.adapters.BlogsLoadingStateAdapter
+import com.rom.moxo.adapters.RecyclerViewClickListener
 import com.rom.moxo.databinding.BlogFragmentBinding
 import com.rom.moxo.utils.RecyclerViewItemDecoration
+import com.rom.moxo.utils.isOnline
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class BlogFragment : Fragment() {
+
+class BlogFragment : Fragment(), RecyclerViewClickListener {
 
 
     companion object {
@@ -32,7 +36,7 @@ class BlogFragment : Fragment() {
     private var _binding: BlogFragmentBinding? = null
     private val binding get() = _binding!!
 
-    private val adapter = BlogAdapter{ name: String -> snackBarClickedPlayer(name) }
+    private val adapter = BlogAdapter(this)
 
     private var searchJob: Job? = null
 
@@ -50,6 +54,8 @@ class BlogFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         startSearchJob()
+
+        binding.shimmerLayout.startShimmer()
     }
 
     override fun onDestroyView() {
@@ -74,19 +80,12 @@ class BlogFragment : Fragment() {
         }
     }
 
-    private fun snackBarClickedPlayer(name: String) {
-        val parentLayout = view?.findViewById<View>(android.R.id.content)
-        if (parentLayout != null) {
-            Snackbar.make(parentLayout, name, Snackbar.LENGTH_LONG)
-                .show()
-        }
-    }
-
     private fun setUpAdapter() {
         binding.recyclerView.apply {
             setHasFixedSize(true)
             addItemDecoration(RecyclerViewItemDecoration())
         }
+
         binding.recyclerView.adapter = adapter.withLoadStateFooter(
             footer = BlogsLoadingStateAdapter { retry() }
         )
@@ -96,12 +95,14 @@ class BlogFragment : Fragment() {
             if (loadState.mediator?.refresh is LoadState.Loading) {
 
                 if (adapter.snapshot().isEmpty()) {
-                    binding.progress.isVisible = true
+                    binding.shimmerLayout.startShimmer()
+                    binding.shimmerLayout.isVisible = true
                 }
-                binding.error.isVisible = false
 
             } else {
-                binding.progress.isVisible = false
+
+                binding.shimmerLayout.stopShimmer()
+                binding.shimmerLayout.isVisible = false
                 binding.swiper.isRefreshing = false
 
                 val error = when {
@@ -112,16 +113,36 @@ class BlogFragment : Fragment() {
                     else -> null
                 }
                 error?.let {
-                    if (adapter.snapshot().isEmpty()) {
-                        binding.error.isVisible = true
-                        binding.error.text = it.error.localizedMessage
-                    }
+                    if (isOnline) {
+                        if (adapter.snapshot().isEmpty()){
+                            binding.errorLayout.isVisible = true
+                            binding.errorTitle.isVisible = true
 
+                            binding.btnRetry.setOnClickListener {
+                                val intent = Intent(context, MainActivity::class.java)
+                                context?.startActivity(intent)
+                            }
+                        }
+                    } else {
+                        binding.errorLayout.isVisible = true
+                        binding.errorMsg.isVisible = true
+
+                        binding.btnRetry.setOnClickListener {
+                            val intent = Intent(context, MainActivity::class.java)
+                            context?.startActivity(intent)
+                        }
+                    }
                 }
 
             }
         }
 
+    }
+
+    override fun onRecyclerViewItemClick(view: View, link : String) {
+        val intent = Intent(context, DetailActivity::class.java)
+        intent.putExtra("url",link)
+        context?.startActivity(intent)
     }
 
     private fun retry() {

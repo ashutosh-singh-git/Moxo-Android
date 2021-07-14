@@ -9,17 +9,14 @@ import coil.load
 import com.rom.moxo.R
 import com.rom.moxo.data.datamodels.Content
 import com.rom.moxo.databinding.ItemBinding
+import java.text.SimpleDateFormat
+import java.util.Date
 
-class BlogAdapter(private val clicked: (String) -> Unit) :
+
+class BlogAdapter(private val listener: RecyclerViewClickListener) :
     PagingDataAdapter<Content, BlogAdapter.ViewHolder>(
         BlogsDiffCallback()
     ) {
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
-        val data = getItem(position)
-        holder.bind(data)
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -30,19 +27,35 @@ class BlogAdapter(private val clicked: (String) -> Unit) :
 
     }
 
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
+        val data = getItem(position)
+        holder.bind(data)
+        holder.itemView.setOnClickListener {
+            listener.onRecyclerViewItemClick(holder.itemView , data!!.link)
+        }
+    }
+
     inner class ViewHolder(
         private val binding: ItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(blogs: Content?){
+            val time = blogs?.publishedAt
+            val sdf = SimpleDateFormat("dd/MM/yy")
+            val netDate = Date(time!!)
+            val date = sdf.format(netDate)
+
             binding.apply {
-                img.load(blogs?.img) {
+                img.load(blogs.img) {
                     crossfade(true)
-                    placeholder(R.drawable.logo)
+                    placeholder(R.drawable.placeholder)
+                    error(R.drawable.placeholder)
                 }
-                author.text = blogs?.author
-                publisher.text = blogs?.publisher
-                title.text = blogs?.title
-                desc.text = blogs?.description
+                author.text = blogs.author
+                publisher.text = blogs.publisher
+                title.text = blogs.title
+                desc.text = blogs.description
+                publishedAt.text = date
             }
         }
     }
@@ -58,3 +71,4 @@ class BlogAdapter(private val clicked: (String) -> Unit) :
     }
 
 }
+

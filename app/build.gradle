@@ -5,13 +5,13 @@ apply plugin:  'dagger.hilt.android.plugin'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.rom.moxo"
         minSdkVersion 24
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
@@ -38,7 +38,7 @@ android {
 }
 
 dependencies {
-    def nav_version = "2.3.5"
+    def nav_version = "2.4.0-alpha04"
     def room = "2.3.0"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
@@ -49,8 +49,10 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-runtime-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
     implementation 'com.squareup.retrofit2:converter-scalars:2.7.0'

@@ -13,23 +13,14 @@ class BlogsLoadingStateAdapter(private val retry: () -> Unit) :
 
     override fun onBindViewHolder(holder: LoadStateViewHolder, loadState: LoadState) {
 
-        val progress = holder.binding.progressBarItem
-        val retryBtn = holder.binding.retyBtn
+        val shimmer = holder.binding.shimmerLayout
         val txtErrorMessage = holder.binding.errorMsgItem
+        val retryBtn = holder.binding.retyBtn
 
-        if (loadState is LoadState.Loading) {
-            progress.isVisible = true
-            txtErrorMessage.isVisible = false
-            retryBtn.isVisible = false
-
-        } else {
-            progress.isVisible = false
-        }
+        shimmer.isVisible = loadState is LoadState.Loading
 
         if (loadState is LoadState.Error) {
             txtErrorMessage.isVisible = true
-            retryBtn.isVisible = true
-            txtErrorMessage.text = loadState.error.localizedMessage
         }
 
 

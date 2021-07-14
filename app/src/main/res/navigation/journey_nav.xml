@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/journey_nav"
+    app:startDestination="@+id/navigation_journey">
+
+    <fragment
+        android:id="@+id/navigation_journey"
+        android:name="com.rom.moxo.ui.journey.JourneyFragment"
+        android:label="@string/title_journey"
+        tools:layout="@layout/journey_fragment" />
+
+</navigation>

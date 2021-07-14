@@ -9,7 +9,7 @@ import com.rom.moxo.data.dao.RemoteKeysDao
 import com.rom.moxo.data.datamodels.Content
 import com.rom.moxo.data.datamodels.RemoteKeys
 
-@Database(entities = [Content::class, RemoteKeys::class],version = 2,exportSchema = false)
+@Database(entities = [Content::class, RemoteKeys::class],version = 3,exportSchema = false)
 abstract class BlogDatabase : RoomDatabase() {
 
     abstract val blogsDao: BlogsDao
